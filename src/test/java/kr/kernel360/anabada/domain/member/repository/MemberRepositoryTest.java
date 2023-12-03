@@ -2,16 +2,18 @@ package kr.kernel360.anabada.domain.member.repository;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
+import kr.kernel360.anabada.domain.member.dto.AgeGroupDto;
+import kr.kernel360.anabada.domain.member.dto.GenderDto;
 import kr.kernel360.anabada.domain.member.entity.Member;
 import kr.kernel360.anabada.global.commons.domain.SocialProvider;
 import kr.kernel360.anabada.global.config.TestQueryDslConfig;
@@ -19,6 +21,7 @@ import kr.kernel360.anabada.global.utils.AgeGroupParser;
 
 @DisplayName("회원 리포지토리 단위 테스트")
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Import(TestQueryDslConfig.class)
 class MemberRepositoryTest {
@@ -26,7 +29,7 @@ class MemberRepositoryTest {
 	//@Import를 통해서 해당 설정을 불러와서 적용할 수 있다.
 	@Autowired
 	private MemberRepository memberRepository;
-	private Member member;
+	private Member member = createMember();
 	private static Member createMember() {
 		return Member.builder()
 			.email("ad2d@naver.com")
@@ -41,10 +44,11 @@ class MemberRepositoryTest {
 			.build();
 	}
 
-	@BeforeEach
-	void setUp() {
-		member = createMember();
-	}
+	//todo : 굳이 메서드 하나마다 새로운 객체 인스턴스를 만들어야 할까?
+	// @BeforeEach
+	// void setUp() {
+	// 	member = createMember();
+	// }
 
 	@Test
 	@Order(1)
@@ -101,5 +105,41 @@ class MemberRepositoryTest {
 
 	    //then
 		assertThat(testBool).isTrue();
+	}
+
+	@Test
+	@Order(5)
+	@DisplayName("연령별 회원 수 조회 테스트")
+	void testCountMembersByAgeGroup() {
+	    //given
+		Member savedMember = memberRepository.save(member);
+
+	    //when
+		AgeGroupDto ageGroupdto = memberRepository.countMembersByAgeGroup()
+			.stream()
+			.filter(ageGroup -> ageGroup.getAgeGroup().equals(savedMember.getAgeGroup()))
+			.findFirst()
+			.get();
+
+		//then
+		assertThat(ageGroupdto.getCount()).isEqualTo(1L);
+	}
+
+	@Test
+	@Order(6)
+	@DisplayName("성별 회원 수 조회 테스트")
+	void testCountMembersByGender() {
+	    //given
+		Member savedMember = memberRepository.save(member);
+
+	    //when
+		GenderDto genderDto = memberRepository.countMembersByGender()
+			.stream()
+			.filter(gender -> gender.getGender().equals(savedMember.getGender()))
+			.findFirst()
+			.get();
+
+	    //then
+		assertThat(genderDto.getCount()).isEqualTo(1L);
 	}
 }

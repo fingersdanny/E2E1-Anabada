@@ -90,7 +90,6 @@ public class Trade extends BaseEntity {
 		this.category = category;
 		this.member = member;
 		this.place = place;
-
 	}
 
 	public void update(TradeStatus tradeStatus) {

@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @DynamicUpdate
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE member SET accountStatus = 0 WHERE id  = ?")
+@SQLDelete(sql = "UPDATE member SET account_status = 0 WHERE id = ?")
 @Table(name = "member")
 public class Member extends BaseEntity {
 	@Id
