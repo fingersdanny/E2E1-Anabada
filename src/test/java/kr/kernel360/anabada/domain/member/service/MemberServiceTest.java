@@ -2,8 +2,6 @@ package kr.kernel360.anabada.domain.member.service;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -25,8 +23,10 @@ import kr.kernel360.anabada.global.utils.AgeGroupParser;
 @DisplayName("회원 서비스 통합 테스트")
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@Transactional
 class MemberServiceTest {
+	// todo : test 순서 바뀌면 동작 제대로 안함 (삭제 메서드 테스트에서 roll back이 안되고 있음)
+	// 그래서 transactional을 testRemove에 적용하면 테스트 통과를 못함 (soft delete 하지 않고 쿼리가 해당 회원을 찾는데서 갑자기 끝남)
+	// 지금 이 상태면 test db에 저런 회원의 데이터가 남아있는게 아닌가..? 추후에 확인이 필요함
 	@Autowired
 	private MemberService memberService;
 	@Autowired
@@ -59,6 +59,7 @@ class MemberServiceTest {
 	@Order(1)
 	@WithMockUser(username = "ad2d@naver.com")
 	@DisplayName("회원 수정 정보를 입력하면, 회원 정보를 수정하고 해당 회원의 아이디를 반환한다.")
+	@Transactional
 	void testUpdateMember() {
 		//given
 		String newNickname = "whylongface";
@@ -83,11 +84,11 @@ class MemberServiceTest {
 		assertThat(foundMember.getGender()).isEqualTo(newGender);
 		assertThat(foundMember.getBirth()).isEqualTo(newBirth);
 	}
-
 	@Test
 	@Order(2)
 	@WithMockUser(username = "ad2d@naver.com", password = "123412")
 	@DisplayName("회원이 비밀번호를 수정하면, 비밀번호를 수정하고 해당 회원의 아이디를 반환한다.")
+	@Transactional
 	void testUpdatePassword(){
 	    //given
 		String newPassword = "hashed_password";
@@ -108,13 +109,11 @@ class MemberServiceTest {
 	@WithMockUser(username = "ad2d@naver.com")
 	@DisplayName("회원 계정 비활성화 테스트")
 	void testRemove() {
-	    //given
+		//given
 		Member savedMember = memberRepository.save(member);
 
 		//when
 		Long removedId = memberService.remove(savedMember.getId());
-		System.out.println(savedMember.getId());
-		memberRepository.existsById(removedId);
 		Member foundMember = memberRepository.findById(removedId).get();
 
 		//then
