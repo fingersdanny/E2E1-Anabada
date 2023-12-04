@@ -88,4 +88,9 @@ public class MemberService {
 		return memberRepository.findByEmail(findEmailByJwt)
 			.orElseThrow(() -> new BusinessException(MemberErrorCode.NOT_FOUND_MEMBER));
 	}
+
+	@Transactional
+	public Member save(Member member) {
+		return memberRepository.save(member);
+	}
 }
