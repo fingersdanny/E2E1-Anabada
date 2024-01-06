@@ -1,6 +1,7 @@
 package kr.kernel360.anabada.domain.member.service;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -100,6 +101,7 @@ class MemberServiceTest {
 		Member foundMember = memberRepository.findById(updatedId).get();
 
 		//then
+		assertEquals(updatedId, savedMember.getId());
 		assertThat(updatedId).isEqualTo(savedMember.getId());
 		assertThat(passwordEncoder.matches(newPassword, foundMember.getPassword())).isTrue();
 	}
