@@ -154,9 +154,9 @@ class MemberServiceTest {
 		Member savedMember = memberRepository.save(member);
 
 		//when
-		// Long removedId = memberService.remove(savedMember.getId());
+		Long removedId = memberService.remove(savedMember.getId());
 
-		// entityManager.flush();
+		entityManager.flush();
 
 		Member foundMember = memberRepository.findByEmail("ad2d@naver.com").get();
 
